@@ -6,14 +6,16 @@ from PIL import Image
 import io
 import base64
 
-import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 # Initialize Flask app
 app = Flask(__name__)
 
 # Load YOLOv7 model (use your path to best.pt)
-model_path = r"D:\CareerX\New Vehicle\train\exp\weights\best.pt"
+# model_path = r"best.pt"
+model_path = os.getenv('MODEL_PATH', './yolov7/best.pt')
 model = torch.hub.load('./yolov7', 'custom', model_path, force_reload=True, trust_repo=True, source='local')
 
 @app.route('/')
@@ -72,5 +74,6 @@ def predict():
     # })
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+# if __name__ == '__main__':
+#     port = int(os.environ.get('PORT', 5000)) 
+#     app.run(host='0.0.0.0', port=port, debug=True)
