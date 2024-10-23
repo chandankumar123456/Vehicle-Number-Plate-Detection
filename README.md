@@ -30,7 +30,7 @@ This project is a Flask web application that performs vehicle number plate detec
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/yourusername/vehicle-number-plate-detection.git
+   git clone https://github.com/chandankumar123456/Vehicle-Number-Plate-Detection.git
    cd vehicle-number-plate-detection
    ```
 
