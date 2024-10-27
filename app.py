@@ -13,8 +13,7 @@ load_dotenv()
 # Initialize Flask app
 app = Flask(__name__)
 
-# Load YOLOv7 model (use your path to best.pt)
-# model_path = r"best.pt"
+# Loading YOLOv7 model
 model_path = os.getenv('MODEL_PATH', './yolov7/best.pt')
 model = torch.hub.load('./yolov7', 'custom', model_path, force_reload=True, trust_repo=True, source='local')
 
@@ -31,35 +30,20 @@ def predict():
     if 'frame' not in request.files:
         return jsonify({'error': 'No frame uploaded'}), 400
 
-    # Read the uploaded frame
     file = request.files['frame']
     image = Image.open(file.stream)
 
-    # Perform inference
+    # Predictions
     results = model(image)
     predictions = results.pandas().xyxy[0]
 
-    # Draw bounding boxes on the image
+    # Drawing bounding boxes 
     img = np.array(image)
     extracted_text = []
     for _, row in predictions.iterrows():
-        # Get bounding box coordinates
         x1, y1, x2, y2 = int(row['xmin']), int(row['ymin']), int(row['xmax']), int(row['ymax'])
-        # Draw a rectangle on the image
-        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green box
+        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-
-        # # Using pytesseract to extract text
-        # number_plate_img = img[y1:y2, x1:x2]
-        
-        # # Convert the cropped image to PIL format for pytesseract
-        # pil_img = Image.fromarray(number_plate_img)
-
-        # # Use pytesseract to extract text
-        # text = pytesseract.image_to_string(pil_img)
-        # extracted_text.append(text.strip())
-
-    # Convert the image with bounding boxes back to PIL format
     img_with_boxes = Image.fromarray(img)
 
     # Save to a BytesIO object
@@ -68,10 +52,6 @@ def predict():
     img_io.seek(0)
 
     return send_file(img_io, mimetype='image/jpeg')
-    # return jsonify({
-    #     'image': send_file(img_io, mimetype='image/jpeg'),
-    #     'extracted_text': extracted_text  # Return the list of extracted texts
-    # })
 
 
 if __name__ == '__main__':
